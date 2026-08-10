@@ -1,6 +1,7 @@
 #pragma once // file type_info.h
 #include "../compile_error/compile_error.h"
 #include <utility>
+#include <climits>
 
 namespace types
 {

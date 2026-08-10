@@ -10,9 +10,9 @@ struct CompileError {
         std::string message;
 };
 
-inline std::vector<CompileError>& getLog() {
-        static std::vector<CompileError> instance;
-        return instance;
+std::vector<CompileError>& getLog() {
+    static std::vector<CompileError> instance;
+    return instance;
 }
 
 export namespace errorR

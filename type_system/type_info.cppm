@@ -60,7 +60,7 @@ export struct TypeInfo
         {
             if (kind != TypeKind::ULONG)
                 return std::make_pair<long long, long long>(
-                    0, (1LL << (8 *getSizeInBytes())) - 1
+                    0, (1LL << (8 * getSizeInBytes())) - 1
                 );
             else
                 return std::make_pair<long long, long long>(

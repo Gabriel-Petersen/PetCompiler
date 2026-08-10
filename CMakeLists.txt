@@ -16,6 +16,10 @@ target_sources(pet_compiler
     PRIVATE
         FILE_SET cxx_modules TYPE CXX_MODULES FILES
             compile_error/compile_error.cppm
+
+            lexer/token.cppm
+            lexer/lexer.cppm
+            
             type_system/type_info.cppm
             type_system/casts.cppm
             type_system/symbol_table.cppm

@@ -204,7 +204,7 @@ namespace lexer
         Lexer(std::string path) : cursor(0), thisLine(0)
         {
             initTokenMap();
-            std::ifstream file("../" + path, std::ios::binary);
+            std::ifstream file(path, std::ios::binary);
             if (file)
             {
                 isValid = true;

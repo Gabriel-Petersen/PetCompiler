@@ -6,9 +6,18 @@
 
 int main() 
 {
-    lexer::Lexer lx("test/test.pet");
+    std::string path = "test/test.pet";
 
     char ans;
+    std::cout << "[DEBUG] Subir uma pasta? [S/n] ";
+    std::cin >> ans;
+
+    if (std::toupper(ans) == 'S')
+        path = "../" + path;
+
+    std::cout << "Abrindo: " << path << '\n';
+    lexer::Lexer lx(path);
+
     std::cout << "Deseja imprimir os tokens? [S/n] ";
     std::cin >> ans;
     if (std::toupper(ans) == 'S')
