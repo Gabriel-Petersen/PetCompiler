@@ -19,10 +19,16 @@ target_sources(pet_compiler
 
             lexer/token.cppm
             lexer/lexer.cppm
-            
+
             type_system/type_info.cppm
             type_system/casts.cppm
             type_system/symbol_table.cppm
+
+            ast/evaluation.cppm
+            ast/ast.cppm
+            ast/visitor.cppm
+            ast/node.cppm
+            
 )
 
 target_include_directories(pet_compiler PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

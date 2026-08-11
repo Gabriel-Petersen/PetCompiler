@@ -34,7 +34,6 @@ namespace runtime
         }
         
         variablePool[name] = {type, val, currentDepth};
-        // std::cout << "[DEBUG-VAR]: '" << name << "' definida na profundidade " << currentDepth << "\n";
     }
 
     inline ast::Evaluation get(std::string name) 
