@@ -8,12 +8,12 @@ export module types.info;
 import error;
 
 export enum class TypeKind {
-    BYTE, CHAR,
-    SMALL, USMALL,
-    INT, UINT,
-    LONG, ULONG,
-    FLOAT, DOUBLE,
-    BOOL
+    BYTE, CHAR,     // 8bits
+    SMALL, USMALL,  // 16bits
+    INT, UINT,      // 32bits
+    LONG, ULONG,    // 64bits
+    FLOAT, DOUBLE,  // FP32/64
+    BOOL            // 8bits addressable
 };
 
 export struct TypeInfo

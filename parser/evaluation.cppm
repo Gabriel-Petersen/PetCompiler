@@ -3,7 +3,7 @@ module;
 #include <string>
 #include <type_traits>
 
-export module ast.evaluation;
+export module parser.evaluation;
 
 import error;
 
