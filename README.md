@@ -96,7 +96,7 @@ Atualmente coexistem:
 - módulos (`.cppm`);
 - código ainda aguardando migração.
 
-A adoção de módulos ainda é parcial e não representa a arquitetura final pretendida.
+A adoção de módulos ainda é parcial, mas representa a arquitetura final pretendida.
 
 ## Requisitos
 

@@ -28,8 +28,10 @@ target_sources(pet_compiler
             ast/visitor.cppm
             ast/node.cppm
             ast/statements.cppm
+            ast/expressions.cppm
+            ast/debug_nodes.cppm
             
-            interpreter/evaluation.cppm
+            parser/evaluation.cppm
 )
 
 target_include_directories(pet_compiler PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
