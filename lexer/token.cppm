@@ -1,8 +1,6 @@
 module;
 
-#include <string>
-#include <utility>
-#include <cstddef>
+#include "stl.h"
 
 export module token;
 

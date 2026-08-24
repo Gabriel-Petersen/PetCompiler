@@ -1,6 +1,10 @@
 export module ast.visitor;
 
-import ast;
+import ast.node;
+import ast.statements;
+import ast.expressions;
+
+import ast.debug_nodes;
 
 export class Visitor
 {

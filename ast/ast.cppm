@@ -1,21 +1,11 @@
 module;
 
-#include <memory>
+#include "stl.h"
 
 export module ast;
 
-export class VarDeclStmt;
-export class AssignmentStmt;
-export class PrintStmt;
-export class BlockStmt;
-export class ReturnStmt;
-export class IfStmt;
-export class ExprStmt;
-
-export class BinaryExpr;
-export class LiteralExpr;
-export class VarExpr;
-export class UnaryExpr;
+import ast.node;
+import ast.statements;
 
 export class AstTree
 {
@@ -26,5 +16,6 @@ public:
     [[nodiscard]] BlockStmt& getRoot() { return *root; }
     [[nodiscard]] const BlockStmt& getRoot() const { return *root; }
 
-    void addStmt(ptr<Stmt> stmt) { root->addStmt(std::move(stmt)); }
+    void addStmt(std::unique_ptr<Stmt> stmt) { root->addStatement(std::move(stmt)); }
 };
+

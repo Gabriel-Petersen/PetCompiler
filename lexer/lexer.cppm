@@ -1,12 +1,6 @@
 module;
 
-#include <cctype>
-#include <cstddef>
-#include <fstream>
-#include <iterator>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "stl.h"
 
 export module lexer;
 

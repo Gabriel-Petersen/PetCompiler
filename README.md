@@ -102,14 +102,20 @@ A adoção de módulos ainda é parcial, mas representa a arquitetura final pret
 
 - CMake 3.28 ou superior
 - Ninja
-- GCC 14 ou superior
+- GCC 16 ou superior
 
 ## Compilação e Execução
 
 O script auxiliar recompila o projeto e executa o binário:
 
 ```bash
-./comp-n-run.sh
+./compile-linux.sh
+```
+
+ou
+
+```powershell
+powershell .\compile-windows.ps1
 ```
 
 Atualmente o programa principal utiliza arquivos presentes em `test/` para validação manual das funcionalidades implementadas.

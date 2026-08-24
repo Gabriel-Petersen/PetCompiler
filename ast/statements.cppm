@@ -1,15 +1,10 @@
 module;
 
-#include <vector>
-#include <memory>
-#include <utility>
-#include <string>
+#include "stl.h"
 
-export module ast:statements;
+export module ast.statements;
 
-import ast;
-import ast.visitor;
-import ast:node;
+import ast.node;
 import types.info;
 
 template<typename T>
@@ -20,10 +15,9 @@ export class BlockStmt : public Stmt
 private:
     std::vector<ptr<Stmt>> statements;
 public:
-    explicit BlockStmt() { }
-    explicit BlockStmt(std::vector<ptr<Stmt>> _stmts) : statements(std::move(_stmts)) { }
+    explicit BlockStmt() : Stmt(AstNodeType::Block) { }
+    explicit BlockStmt(std::vector<ptr<Stmt>> _stmts) : Stmt(AstNodeType::Block), statements(std::move(_stmts)) { }
 
-    void accept(Visitor& visitor) override { visitor.visit(*this); }
     void addStatement(ptr<Stmt> stmt) { statements.push_back(std::move(stmt)); }
 
     [[nodiscard]] const std::vector<ptr<Stmt>>& getStatements() const { return statements; }
@@ -39,9 +33,7 @@ private:
 
 public: 
     explicit IfStmt(ptr<Expr> _cond, ptr<BlockStmt> _then, ptr<BlockStmt> _else = nullptr) : 
-        condition(std::move(_cond)), thenBlock(std::move(_then)), elseBlock(std::move(_else)) { }
-
-    void accept(Visitor& visitor) override { visitor.visit(*this); }
+        Stmt(AstNodeType::If), condition(std::move(_cond)), thenBlock(std::move(_then)), elseBlock(std::move(_else)) { }
 
     [[nodiscard]] const Expr& getCondition() const { return *condition; }
     [[nodiscard]] Expr& getCondition() { return *condition; }
@@ -56,9 +48,7 @@ export class ReturnStmt : public Stmt
 private:
     ptr<Expr> expression;
 public:
-    explicit ReturnStmt(ptr<Expr> expr) : expression(std::move(expr)) { }
-
-    void accept(Visitor& visitor) override { visitor.visit(*this); }
+    explicit ReturnStmt(ptr<Expr> expr) : Stmt(AstNodeType::Return), expression(std::move(expr)) { }
 
     [[nodiscard]] Expr& getExpr() { return *expression; }
     [[nodiscard]] const Expr& getExpr() const { return *expression; }
@@ -74,9 +64,7 @@ public:
     const TypeInfo type;
 
     explicit VarDeclStmt(std::string _ident, const TypeInfo _type, ptr<Expr> init = nullptr) :
-        initializer(std::move(init)), identifier(std::move(_ident)), type(_type) { }
-
-    void accept(Visitor& visitor) override { visitor.visit(*this); }
+        Stmt(AstNodeType::VarDecl), initializer(std::move(init)), identifier(std::move(_ident)), type(_type) { }
     
     [[nodiscard]] const Expr* getInitializer() const { return initializer.get(); }
     [[nodiscard]] Expr* getInitializer() { return initializer.get(); }
@@ -90,9 +78,8 @@ private:
 public:
     const std::string identifier;
 
-    explicit AssignmentStmt(std::string _ident, ptr<Expr> _value) : value(std::move(_value)), identifier(std::move(_ident)) { }
-
-    void accept(Visitor& visitor) override { visitor.visit(*this); }
+    explicit AssignmentStmt(std::string _ident, ptr<Expr> _value) : 
+        Stmt(AstNodeType::Assignment), value(std::move(_value)), identifier(std::move(_ident)) { }
     
     [[nodiscard]] const Expr& getValue() const { return *value; }
     [[nodiscard]] Expr& getValue() { return *value; }

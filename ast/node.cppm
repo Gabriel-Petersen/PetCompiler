@@ -1,30 +1,37 @@
 module;
 
-#include <memory>
-#include <utility>
+#include "stl.h"
 
-export module ast:node;
+export module ast.node;
 
-import ast;
-import ast.visitor;
 import types.info;
+
+export enum class AstNodeType {
+    Expr, Block, If, Return, VarDecl, Assignment,
+    Literal, Unary, Var, Binary,
+    Print
+};
 
 export class Node
 {
 public:
-    virtual ~Node() = default;
+    const AstNodeType nodeType;
+    explicit Node(AstNodeType type) : nodeType(type) { }
 
-    virtual void accept(Visitor& visitor) = 0;
+    virtual ~Node() = default;
 };
 
 export class Expr : public Node
 {
 public:
     TypeInfo computedType;
+    explicit Expr(AstNodeType type) : Node(type) { }
 };
 
 export class Stmt : public Node
 {
+public:
+    explicit Stmt(AstNodeType type) : Node(type) { }
 };
 
 export class ExprStmt final : public Stmt
@@ -33,9 +40,7 @@ private:
     std::unique_ptr<Expr> expr;
 
 public:
-    explicit ExprStmt(std::unique_ptr<Expr> expression) : expr(std::move(expression)) { }
-
-    void accept(Visitor& visitor) override { visitor.visit(*this); }
+    explicit ExprStmt(std::unique_ptr<Expr> expression) : Stmt(AstNodeType::Expr), expr(std::move(expression)) { }
 
     [[nodiscard]] Expr& getExpr() { return *expr; }
     [[nodiscard]] const Expr& getExpr() const { return *expr; }

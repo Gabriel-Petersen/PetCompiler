@@ -24,14 +24,18 @@ target_sources(pet_compiler
             type_system/casts.cppm
             type_system/symbol_table.cppm
 
-            ast/ast.cppm
+            parser/evaluation.cppm
+
             ast/visitor.cppm
             ast/node.cppm
             ast/statements.cppm
             ast/expressions.cppm
             ast/debug_nodes.cppm
+            ast/ast.cppm
+            ast/dispatcher.cppm
             
-            parser/evaluation.cppm
+            interpreter/runtime.cppm
+            interpreter/interpreter.cppm
 )
 
 target_include_directories(pet_compiler PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

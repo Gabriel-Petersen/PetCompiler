@@ -1,7 +1,6 @@
 module;
 
-#include <string>
-#include <type_traits>
+#include "stl.h"
 
 export module parser.evaluation;
 

@@ -1,7 +1,6 @@
 module;
 
-#include <memory>
-#include <unordered_map>
+#include "stl.h"
 
 export module types.symbol_table;
 
