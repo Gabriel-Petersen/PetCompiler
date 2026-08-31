@@ -7,6 +7,7 @@ export module types.info;
 import error;
 
 export enum class TypeKind {
+    VOID, // 0 bits
     BYTE, CHAR,     // 8bits
     SMALL, USMALL,  // 16bits
     INT, UINT,      // 32bits
@@ -22,6 +23,8 @@ export struct TypeInfo
     int getSizeInBytes() {
         switch (kind)
         {
+        case TypeKind::VOID:
+            return 0;
         case TypeKind::BYTE:
         case TypeKind::CHAR:
         case TypeKind::BOOL:
@@ -44,8 +47,9 @@ export struct TypeInfo
     }
 
     bool isFloat()   { return kind == TypeKind::FLOAT || kind == TypeKind::DOUBLE; }
-    bool isInteger() { return !isFloat() && kind != TypeKind::BOOL; }
+    bool isInteger() { return !isFloat() && kind != TypeKind::BOOL && kind != TypeKind::VOID; }
     bool isBool()    { return kind == TypeKind::BOOL; }
+    bool isVoid()    { return kind == TypeKind::VOID; }
     
     bool isUnsigned() {
         return kind == TypeKind::CHAR || kind == TypeKind::USMALL || kind == TypeKind::UINT || kind == TypeKind::ULONG;
@@ -54,7 +58,9 @@ export struct TypeInfo
     // MAY REQUIRE CAST TO UNSIGNED LONG LONG
     std::pair<long long, long long> getBounds() 
     {
-        if (kind == TypeKind::BOOL) return std::make_pair<long, long>(0, 1);
+        if (kind == TypeKind::BOOL) return std::make_pair<long long, long long>(0, 1);
+        if (kind == TypeKind::VOID) return std::make_pair<long long, long long>(0, 0);
+        
         if (isUnsigned())
         {
             if (kind != TypeKind::ULONG)
