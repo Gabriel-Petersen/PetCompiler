@@ -15,17 +15,21 @@ target_sources(pet_compiler
 target_sources(pet_compiler
     PRIVATE
         FILE_SET cxx_modules TYPE CXX_MODULES FILES
+            # Error Handling
             compile_error/compile_error.cppm
 
+            # Lexer
             lexer/token.cppm
             lexer/lexer.cppm
 
+            # Type System
             type_system/type_info.cppm
             type_system/casts.cppm
             type_system/symbol_table.cppm
 
             parser/evaluation.cppm
 
+            # AST
             ast/visitor.cppm
             ast/node.cppm
             ast/statements.cppm
@@ -33,7 +37,13 @@ target_sources(pet_compiler
             ast/debug_nodes.cppm
             ast/ast.cppm
             ast/dispatcher.cppm
+
+            # Parser
+            parser/token_cursor.cppm
+            parser/types.cppm
+            parser/expressions.cppm
             
+            # Interpreter
             interpreter/runtime.cppm
             interpreter/interpreter.cppm
 )

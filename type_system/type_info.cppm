@@ -7,7 +7,7 @@ export module types.info;
 import error;
 
 export enum class TypeKind {
-    VOID, // 0 bits
+    VOID,           // 0 bits
     BYTE, CHAR,     // 8bits
     SMALL, USMALL,  // 16bits
     INT, UINT,      // 32bits
