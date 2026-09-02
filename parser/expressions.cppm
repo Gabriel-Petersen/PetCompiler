@@ -6,7 +6,7 @@ module;
 
 export module parser.expressions;
 
-import lexer.token;
+import token;
 import parser.token_cursor;
 import parser.evaluation;
 import error;

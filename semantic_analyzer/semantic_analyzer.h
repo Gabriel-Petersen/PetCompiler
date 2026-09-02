@@ -1,3 +1,5 @@
+/*
+
 #pragma once
 
 #include <memory>
@@ -131,3 +133,5 @@ namespace analyzer
         }
     };
 }
+
+*/

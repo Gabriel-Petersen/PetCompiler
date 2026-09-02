@@ -1,3 +1,7 @@
+module;
+
+#include <string>
+
 export module parser.types;
 
 import token;
@@ -54,9 +58,8 @@ export namespace type_parser
             return TypeInfo{TypeKind::VOID};
 
         default:
-            error::report(
-                "Unexpected type token on declaration: " + token.src
-            );
+            std::string err = "Unexpected type token on declaration: " + token.src;
+            error::report(err);
 
             return TypeInfo{TypeKind::INT};
         }

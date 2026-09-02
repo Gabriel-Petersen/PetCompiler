@@ -13,7 +13,7 @@ std::vector<CompileError>& getLog() {
     return instance;
 }
 
-export namespace errorR
+export namespace error
 {
     inline void report(const std::string& msg) {
         getLog().push_back({msg});

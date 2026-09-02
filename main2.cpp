@@ -5,7 +5,7 @@
 
 import error;
 import lexer;
-import lexer.token;
+import token;
 import parser;
 import parser.evaluation;
 import ast;
@@ -13,7 +13,7 @@ import interpreter;
 
 int main()
 {
-    std::string path = "tests/test_modern.pet";
+    std::string path = "test/test_modern.pet";
 
     char answer;
 

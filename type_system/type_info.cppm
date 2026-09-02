@@ -41,7 +41,7 @@ export struct TypeInfo
         case TypeKind::ULONG:
             return 8;
         default:
-            errorR::report("Unexpected type");
+            error::report("Unexpected type");
             return 0;
         }
     }

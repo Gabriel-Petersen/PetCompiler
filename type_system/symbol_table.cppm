@@ -19,7 +19,7 @@ public:
     void define(std::string name, TypeInfo type)
     {
         if (symbols.count(name))
-            errorR::report("Variable of name \'" + name + "\' already defined in this scope");
+            error::report("Variable of name \'" + name + "\' already defined in this scope");
         else
             symbols[name] = type;
     }

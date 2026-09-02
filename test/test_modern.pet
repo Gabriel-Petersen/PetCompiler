@@ -3,7 +3,7 @@ print(1);
 int x = 2;
 print(x);
 
-i* (x > 0)
+if (x > 0)
 {
     int y = 9;
     x = 4;

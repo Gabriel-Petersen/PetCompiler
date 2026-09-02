@@ -43,7 +43,7 @@ export struct Evaluation
             return data.dVal != 0.0;
         }
 
-        errorR::report(
+        error::report(
             "Unexpected EvaluationType: " +
             std::to_string(static_cast<int>(type))
         );
@@ -66,7 +66,7 @@ export struct Evaluation
         case EvaluationType::BOOL:  return static_cast<T>(data.bVal);
         }
 
-        errorR::report(
+        error::report(
             "Unexpected EvaluationType: " +
             std::to_string(static_cast<int>(type))
         );
