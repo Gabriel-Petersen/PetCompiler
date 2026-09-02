@@ -9,7 +9,7 @@ add_executable(pet_compiler)
 
 target_sources(pet_compiler
     PRIVATE
-        main2.cpp
+        main.cpp
 )
 
 target_sources(pet_compiler

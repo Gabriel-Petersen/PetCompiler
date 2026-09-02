@@ -1,47 +1,102 @@
+#include <cctype>
 #include <iostream>
-#include "lexer/lexer.h"
-#include "parser/parser.h"
-#include "ast/ast.h"
-#include "compile_error/compile_error.h"
+#include <memory>
+#include <string>
 
-int main() 
+import error;
+import lexer;
+import token;
+import parser;
+import parser.evaluation;
+import ast;
+import interpreter;
+
+int main(int argc, char* argv[])
 {
-    std::string path = "test/test.pet";
+    std::string path;
+    bool debugTokens = false;
 
-    char ans;
-    std::cout << "[DEBUG] Subir uma pasta? [S/n] ";
-    std::cin >> ans;
-
-    if (std::toupper(ans) == 'S')
-        path = "../" + path;
-
-    std::cout << "Abrindo: " << path << '\n';
-    lexer::Lexer lx(path);
-
-    std::cout << "Deseja imprimir os tokens? [S/n] ";
-    std::cin >> ans;
-    if (std::toupper(ans) == 'S')
+    for (int i = 1; i < argc; i++) 
     {
-        for (auto& val : lx.getAllToken())
-            std::cout << "[" << val.type << "]" << " ";
-        std::cout << std::endl;
+        const std::string_view argument{argv[i]};
+
+        if (argument == "--debug-tokens") {
+            debugTokens = true;
+            continue;
+        }
+
+        if (!path.empty())
+        {
+            std::cerr << "Erro: apenas um arquivo de entrada eh suportado por enquanto.\n";
+            std::cerr << "Uso: " << argv[0] << " [--debug-tokens] [arquivo.pet]\n";
+            return 1;
+        }
+
+        path = argument;
     }
 
-    parser::Parser p(lx);
-    auto minhaArvore = p.getAst();
+    if (path.empty())
+    {
+        path = "test/test_modern.pet";
+        std::cout << "Nenhum arquivo de entrada informado.\nUsando arquivo de teste: " << path << '\n';
+
+        if (argc == 1)
+        {
+            char answer;
+
+            std::cout << "[DEBUG] Subir uma pasta? [S/n] ";
+            std::cin >> answer;
+
+            if (std::toupper(static_cast<unsigned char>(answer)) == 'S') 
+                path = "../" + path;
+        }
+    }
+
+    
+    std::cout << "Abrindo: " << path << '\n';
+
+    Lexer lexer(path);
+
+    if (!lexer.isValid) {
+        std::cerr << "Nao foi possivel abrir o arquivo: " << path << '\n';
+        return 1;
+    }
+
+    if (debugTokens)
+    {
+        for (const Token& token : lexer.getAllToken())
+            std::cout << '[' << static_cast<int>(token.type) << "] ";
+
+        std::cout << '\n';
+    }
+
+    Parser parser(lexer);
+
+    std::unique_ptr<AstTree> tree = parser.takeAst();
+
     std::cout << "Parser finalizado.\n";
 
-    if (error::hasErrors()) 
-    {
+    if (error::hasErrors()) {
         error::dump();
         return 1;
     }
 
-    if (minhaArvore == nullptr) { std::cerr << "Arvore nullptr\n"; return 1; }
-    
-    std::cout << "\n-------------Inicializando execucao do programa-----------------\n\n";
-    long long ret = minhaArvore->interpret().getNumber<long long>();
-    std::cout << "[PROGRAM-RETURN]: " << ret << std::endl;
+    if (!tree) {
+        std::cerr << "AST nullptr\n";
+        return 1;
+    }
+
+    std::cout << "\n" << "-------------Inicializando execucao do programa-----------------\n\n";
+
+    Interpreter interpreter;
+    Evaluation result = interpreter.interpret(*tree);
+
+    if (error::hasErrors()) {
+        error::dump();
+        return 1;
+    }
+
+    std::cout << "[PROGRAM-RETURN]: " << result.getNumber<long long>() << '\n';
 
     return 0;
 }

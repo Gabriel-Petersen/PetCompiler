@@ -1,14 +1,105 @@
-print(1);
+print(1000);
 
-int x = 2;
-print(x);
+int a = 10;
+int b = 3;
+double decimal = 2.5;
 
-if (x > 0)
+print(a);
+print(b);
+print(decimal);
+
+print(a + b);
+print(a - b);
+print(a * b);
+print(a / b);
+print(a % b);
+
+print(a + b * 2);
+print((a + b) * 2);
+print(a - b - 2);
+print(a * b + 4);
+print(a * (b + 4));
+
+print(-a);
+print(-a + b);
+print(-(a + b));
+
+print(a > b);
+print(a >= b);
+print(a < b);
+print(a <= b);
+print(a == b);
+print(a != b);
+
+if (a > b)
 {
-    int y = 9;
-    x = 4;
-    print(x + y);
+    print(101);
+
+    int inside = 7;
+    print(inside);
+
+    if (inside == 7)
+    {
+        print(102);
+        inside = inside + 3;
+        print(inside);
+    }
+    else { print(999); }
+
+    print(inside);
+}
+else {
+    print(998);
 }
 
-print(y);
-return x + 3;
+print(inside);
+
+a = a + 5;
+b = b * 2;
+
+print(a);
+print(b);
+
+if (a < 0)
+{
+    print(201);
+}
+else if (a == 15)
+{
+    print(202);
+}
+else
+{
+    print(203);
+}
+
+if (b > a)
+{
+    print(301);
+}
+else if (b == a)
+{
+    print(302);
+}
+else if (b < a)
+{
+    print(303);
+}
+else
+{
+    print(304);
+}
+
+if (!(b > a))
+{
+    print(401);
+}
+
+if ((a == 15) == true)
+{
+    print(402); }
+
+int result = a + b * 2;
+print(result);
+
+return result;
