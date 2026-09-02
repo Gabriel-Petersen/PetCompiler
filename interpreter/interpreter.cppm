@@ -137,7 +137,7 @@ public:
                 return;
 
             default:
-                std::cout << "[RUNTIME-ERROR]: Operacao nao suportada " << "entre booleanos.\n";
+                std::cout << "[RUNTIME-ERROR]: Operacao nao suportada " << std::static_cast<int>(operation) << "entre booleanos.\n";
                 lastEvaluation = Evaluation();
                 return;
             }

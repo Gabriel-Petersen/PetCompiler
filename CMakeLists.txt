@@ -9,7 +9,7 @@ add_executable(pet_compiler)
 
 target_sources(pet_compiler
     PRIVATE
-        main.cpp
+        main2.cpp
 )
 
 target_sources(pet_compiler
@@ -42,6 +42,8 @@ target_sources(pet_compiler
             parser/token_cursor.cppm
             parser/types.cppm
             parser/expressions.cppm
+            parser/statements.cppm
+            parser/parser.cppm
             
             # Interpreter
             interpreter/runtime.cppm

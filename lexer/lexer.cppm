@@ -5,6 +5,7 @@ module;
 export module lexer;
 
 import token;
+import error;
 
 export class Lexer 
 {
@@ -243,6 +244,11 @@ public:
 
     std::vector<Token> getAllToken()
     {
+        if (!isValid) {
+            error::report("No file has been loaded to lexer");
+            return {};
+        }
+
         std::vector<Token> tkVet;
         auto tk = nextToken();
         while (tk.type != TokenType::END_OF_FILE)

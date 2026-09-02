@@ -23,16 +23,16 @@ private:
     TokenCursor& cursor;
     ExpressionParser& exprParser;
 
-    bool consumeSemicolon()
+    [[nodiscard]] bool consumeSemicolon()
     {
         if (cursor.match(TokenType::SEMICOLON)) return true;
         error::report("Semicolon ';' expected");
         return false;
     }
 
-    ptr<VarDeclStmt> parseVariableDeclaration()
+    [[nodiscard]] ptr<VarDeclStmt> parseVariableDeclaration()
     {
-        auto typeToken = cursor.advance();
+        const Token& typeToken = cursor.advance();
         auto typeInfo = type_parser::parse(typeToken);
 
         if (!cursor.check(TokenType::IDENTIFYER))
@@ -42,7 +42,7 @@ private:
             return nullptr;
         }
 
-        std::string identifyer = cursor.advance().src;
+        std::string identifier = cursor.advance().src;
         ptr<Expr> initializer = nullptr;
 
         if (cursor.match(TokenType::EQUAL))
@@ -59,10 +59,10 @@ private:
             return nullptr;
         }
 
-        return std::make_unique<VarDeclStmt>(identifyer, typeInfo, std::move(initializer));
+        return std::make_unique<VarDeclStmt>(std::move(identifier), typeInfo, std::move(initializer));
     }
 
-    ptr<AssignmentStmt> parseAssignment()
+    [[nodiscard]] ptr<AssignmentStmt> parseAssignment()
     {
         std::string name = cursor.advance().src;
 
@@ -82,10 +82,10 @@ private:
             return nullptr;
         }
 
-        return std::make_unique<AssignmentStmt>(name, std::move(val));
+        return std::make_unique<AssignmentStmt>(std::move(name), std::move(val));
     }
 
-    ptr<IfStmt> parseIf()
+    [[nodiscard]] ptr<IfStmt> parseIf()
     {
         cursor.advance(); // Pula 'if'
                 
@@ -95,8 +95,9 @@ private:
         }
 
         auto cond = exprParser.parseExpr();
-        if (cond == nullptr) {
-            error::report("If needs a condition. Expected condition not found")
+        if (cond == nullptr) 
+        {
+            error::report("If needs a condition. Expected condition not found");
             cursor.synchronize();
             return nullptr;
         }
@@ -106,13 +107,15 @@ private:
             return nullptr;
         }
 
-        if (!cursor.check(TokenType::L_BRACES)) {
+        if (!cursor.check(TokenType::L_BRACES)) 
+        {
             error::report("Expected '{' before if body");
             cursor.synchronize();
             return nullptr;
         }
 
         auto thenStmt = parseBlock();
+        if (thenStmt == nullptr) return nullptr;
 
         if (cursor.match(TokenType::ELSE))
         {
@@ -120,8 +123,8 @@ private:
             {
                 auto nestedIf = parseIf();
                 if (nestedIf == nullptr) {
-                    error::report("Nested if expected not found, discarding else and putting normal if as fallback")
-                    return std::make_unique<IfStmt>(std::move(cond), std::move(thenStmt));
+                    error::report("Invalid nested if after 'else'");
+                    return nullptr;
                 }
 
                 auto elseBlock = std::make_unique<BlockStmt>();
@@ -130,34 +133,47 @@ private:
             }
 
             if (cursor.check(TokenType::L_BRACES))
-                return std::make_unique<IfStmt>(std::move(cond), std::move(thenStmt), parseBlock());
+            {
+                auto elseBlock = parseBlock();
+                if (elseBlock == nullptr) return nullptr;
+                return std::make_unique<IfStmt>(std::move(cond), std::move(thenStmt), std::move(elseBlock));
+            }
             else
+            {
                 error::report("Expected '{' or 'if' after else");
+                cursor.synchronize();
+                return nullptr;
+            }
         }
 
         return std::make_unique<IfStmt>(std::move(cond), std::move(thenStmt));
     }
 
-    ptr<ReturnStmt> parseReturn()
+    [[nodiscard]] ptr<ReturnStmt> parseReturn()
     {
         if (!cursor.consume(TokenType::RETURN, "Internal error consuming 'return' token"))
             return nullptr;
 
-        auto expr = nullptr;
+        ptr<Expr> expr = nullptr;
 
-        if (cursor.check(TokenType::SEMICOLON))
+        if (!cursor.check(TokenType::SEMICOLON))
+        {
             expr = exprParser.parseExpr();
+            if (expr == nullptr) {
+                cursor.synchronize();
+                return nullptr;
+            }
+        }
 
-        if (expr == nullptr && !isEnd() && peek().type != TokenType::SEMICOLON)
+        if (!consumeSemicolon()) {
             cursor.synchronize();
-
-        if (!consumeSemicolon())
             return nullptr;
+        }
 
         return std::make_unique<ReturnStmt>(std::move(expr));
     }
 
-    ptr<ExprStmt> parseExprStmt()
+    [[nodiscard]] ptr<ExprStmt> parseExprStmt()
     {
         auto expr = exprParser.parseExpr();
 
@@ -174,27 +190,33 @@ private:
         return std::make_unique<ExprStmt>(std::move(expr));
     }
 
-    ptr<PrintStmt> parsePrint()
+    [[nodiscard]] ptr<PrintStmt> parsePrint()
     {
         if (!cursor.consume(TokenType::PRINT, "Internal error consuming 'print' token"))
             return nullptr;
 
-        if (!cursor.consume(TokenType::L_PAREN, "Expected '(' after 'print' statement"))
-            return nullptr;
-
-        auto expr = exprParser.parseExpr();
-
-        if (expr == nullptr) {
-            error::report("Expected expression at 'print' statement")
+        if (!cursor.consume(TokenType::L_PAREN, "Expected '(' after 'print' statement")) {
             cursor.synchronize();
             return nullptr;
         }
 
-        if (!cursor.consume(TokenType::R_PAREN, "Expected 'R' after 'print' inner expression"))
-            return nullptr;
+        auto expr = exprParser.parseExpr();
 
-        if (!consumeSemicolon())
+        if (expr == nullptr) {
+            error::report("Expected expression at 'print' statement");
+            cursor.synchronize();
             return nullptr;
+        }
+
+        if (!cursor.consume(TokenType::R_PAREN, "Expected ')' after 'print' expression")) {
+            cursor.synchronize();
+            return nullptr;
+        }
+
+        if (!consumeSemicolon()) {
+            cursor.synchronize();
+            return nullptr;
+        }
 
         return std::make_unique<PrintStmt>(std::move(expr));
     }
@@ -203,9 +225,9 @@ public:
     explicit StatementParser(TokenCursor& cursor, ExpressionParser& exprParser) :
         cursor(cursor), exprParser(exprParser) { }
 
-    ptr<Stmt> parseStmt() 
+    [[nodiscard]] ptr<Stmt> parseStmt() 
     {
-        auto tk = cursor.peek();
+        const Token& tk = cursor.peek();
         if (type_parser::isTypeToken(tk.type)) 
             return parseVariableDeclaration();
         if (tk.type == TokenType::IDENTIFYER &&  cursor.lookAhead().type == TokenType::EQUAL)
@@ -224,21 +246,30 @@ public:
         return parseExprStmt();
     }
 
-    ptr<BlockStmt> parseBlock()
+    [[nodiscard]] ptr<BlockStmt> parseBlock()
     {
         if (!cursor.consume(TokenType::L_BRACES, "Expected '{' before block")) // consome '{'
             return nullptr;
         
         auto block = std::make_unique<BlockStmt>();
 
-        while (!cursor.isAtEnd() && cursor.peek().type != TokenType::END_OF_FILE && cursor.peek().type != TokenType::R_BRACES)
+        while (!cursor.isAtEnd() && !cursor.check(TokenType::R_BRACES))
         {
+            const std::size_t initialPosition = cursor.position();
             auto stmt = parseStmt();
-            if (stmt != nullptr) block->addStatement(std::move(stmt));
+
+            if (stmt != nullptr) 
+                block->addStatement(std::move(stmt));
+            else if (cursor.position() == initialPosition) {
+                error::report("Parser failed without consuming any token");
+                cursor.advance();
+            }
         }
 
-        if (!cursor.match(TokenType::R_BRACES)) // consome '}' 
-            error::report("Expected }");
+        if (!cursor.match(TokenType::R_BRACES)) { // consome '}' 
+            error::report("Expected '}' after block");
+            return nullptr;
+        }
         
         return block;
     }

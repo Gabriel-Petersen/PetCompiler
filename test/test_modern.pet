@@ -1,0 +1,14 @@
+print(1);
+
+int x = 2;
+print(x);
+
+i* (x > 0)
+{
+    int y = 9;
+    x = 4;
+    print(x + y);
+}
+
+print(y);
+return x + 3;
