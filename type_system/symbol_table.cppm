@@ -16,18 +16,22 @@ public:
     SymbolTable(std::shared_ptr<SymbolTable> parent) : parent(std::move(parent)) { }
     SymbolTable() : parent(nullptr) { }
 
-    void define(std::string name, TypeInfo type)
+    bool define(const std::string& name, TypeInfo type)
     {
-        if (symbols.count(name))
+        bool sucess = symbols.count(name) == 0;
+
+        if (!sucess)
             error::report("Variable of name \'" + name + "\' already defined in this scope");
         else
             symbols[name] = type;
+
+        return sucess;
     }
 
-    std::optional<TypeInfo> lookup(std::string name)
+    std::optional<TypeInfo> lookup(const std::string& name)
     {
-        if (symbols.count(name))
-            return symbols[name];
+        auto found = symbols.find(name);
+        if (found != symbols.end()) return *found;
         
         return parent == nullptr ? std::nullopt : parent->lookup(name);
     }

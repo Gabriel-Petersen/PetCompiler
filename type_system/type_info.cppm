@@ -46,10 +46,10 @@ export struct TypeInfo
         }
     }
 
-    bool isFloat()   { return kind == TypeKind::FLOAT || kind == TypeKind::DOUBLE; }
-    bool isInteger() { return !isFloat() && kind != TypeKind::BOOL && kind != TypeKind::VOID; }
-    bool isBool()    { return kind == TypeKind::BOOL; }
-    bool isVoid()    { return kind == TypeKind::VOID; }
+    [[nodiscard]] bool isFloat()   const { return kind == TypeKind::FLOAT || kind == TypeKind::DOUBLE; }
+    [[nodiscard]] bool isInteger() const { return !isFloat() && kind != TypeKind::BOOL && kind != TypeKind::VOID; }
+    [[nodiscard]] bool isBool()    const { return kind == TypeKind::BOOL; }
+    [[nodiscard]] bool isVoid()    const { return kind == TypeKind::VOID; }
     
     bool isUnsigned() {
         return kind == TypeKind::CHAR || kind == TypeKind::USMALL || kind == TypeKind::UINT || kind == TypeKind::ULONG;
@@ -76,7 +76,7 @@ export struct TypeInfo
         {
             if (kind != TypeKind::LONG)
             {
-                int n = 8 * getSizeInBytes();
+                int n = 8 * getSizeInBytes() - 1;
                 return std::make_pair<long long, long long>(
                     -(1LL << n), (1LL << n) - 1
                 );

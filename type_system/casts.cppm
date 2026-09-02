@@ -11,9 +11,14 @@ export enum class CastSeverity {
 
 export namespace casts
 {
-    inline CastSeverity getCastSeverity(TypeInfo from, TypeInfo to)
+    inline CastSeverity getCastSeverity(const TypeInfo& from, const TypeInfo& to)
     {
         if (from.kind == to.kind) return CastSeverity::IDENTITY;
+        
+        if (from.isVoid() || to.isVoid()) {
+            if (to.isBool()) return CastSeverity::DEMOTION;
+            return CastSeverity::IMPOSSIBLE;
+        }
         
         if (from.isBool() || to.isBool()) return CastSeverity::DEMOTION;
 
