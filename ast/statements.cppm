@@ -50,6 +50,7 @@ private:
 public:
     explicit ReturnStmt(ptr<Expr> expr) : Stmt(AstNodeType::Return), expression(std::move(expr)) { }
 
+    [[nodiscard]] bool isNull() const { return expression == nullptr; }
     [[nodiscard]] Expr& getExpr() { return *expression; }
     [[nodiscard]] const Expr& getExpr() const { return *expression; }
 };
@@ -70,17 +71,24 @@ public:
     [[nodiscard]] Expr* getInitializer() { return initializer.get(); }
 };
 
+export enum class AssignmentOperation {
+    ASSIGN, ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, DIV_ASSIGN, MOD_ASSIGN 
+};
+
 export class AssignmentStmt : public Stmt
 {
 private:
-    ptr<Expr> value;
-    
+    ptr<Expr> target;
+    ptr<Expr> rvalue;
 public:
-    const std::string identifier;
+    const AssignmentOperation operation;
 
-    explicit AssignmentStmt(std::string _ident, ptr<Expr> _value) : 
-        Stmt(AstNodeType::Assignment), value(std::move(_value)), identifier(std::move(_ident)) { }
+    explicit AssignmentStmt(ptr<Expr> _target, AssignmentOperation operation, ptr<Expr> _rvalue) : 
+        Stmt(AstNodeType::Assignment), target(std::move(_target)), rvalue(std::move(_rvalue)), operation(operation) { }
     
-    [[nodiscard]] const Expr& getValue() const { return *value; }
-    [[nodiscard]] Expr& getValue() { return *value; }
+    [[nodiscard]] const Expr& getTarget() const { return *target; }
+    [[nodiscard]] Expr& getTarget() { return *target; }
+
+    [[nodiscard]] const Expr& getRValue() const { return *rvalue; }
+    [[nodiscard]] Expr& getRValue() { return *rvalue; }
 };

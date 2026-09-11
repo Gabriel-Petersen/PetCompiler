@@ -38,6 +38,10 @@ export namespace runtime
         );
     }
 
+    void error(const std::string& message) {
+        std::cout << message << std::endl;
+    }
+
     bool assign(const std::string& name, Evaluation value)
     {
         const auto found = variablePool.find(name);

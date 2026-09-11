@@ -15,7 +15,7 @@ export class LiteralExpr : public Expr
 {
     const Evaluation eval;
 public:
-    explicit LiteralExpr(Evaluation eval) : Expr(AstNodeType::Literal), eval(eval) { }
+    explicit LiteralExpr(Evaluation eval) : Expr(AstNodeType::Literal, AccessMode::READONLY), eval(eval) { }
 
     [[nodiscard]] Evaluation getValue() const { return eval; }
 };
@@ -30,7 +30,7 @@ export class UnaryExpr : public Expr
     ptr<Expr> child;
 public:
     explicit UnaryExpr(UnaryExprType tp, ptr<Expr> _child) : 
-        Expr(AstNodeType::Unary), type(tp), child(std::move(_child)) { }
+        Expr(AstNodeType::Unary, AccessMode::READONLY), type(tp), child(std::move(_child)) { }
 
     [[nodiscard]] UnaryExprType getType() const { return type; }
     [[nodiscard]] Expr& getChild() { return *child; }
@@ -41,7 +41,7 @@ export class VarExpr : public Expr
 {
     const std::string name;
 public:
-    explicit VarExpr(std::string variable_name) : Expr(AstNodeType::Var), name(std::move(variable_name)) { }
+    explicit VarExpr(std::string variable_name) : Expr(AstNodeType::Var, AccessMode::UNRESOLVED), name(std::move(variable_name)) { }
 
     [[nodiscard]] const std::string& getVarName() const { return name; }
 };
@@ -59,7 +59,7 @@ export class BinaryExpr : public Expr
     ptr<Expr> right;
 public:
     explicit BinaryExpr(ptr<Expr> _left, BinaryExprType _type, ptr<Expr> _right) :
-        Expr(AstNodeType::Binary), left(std::move(_left)), type(_type), right(std::move(_right)) { }
+        Expr(AstNodeType::Binary, AccessMode::READONLY), left(std::move(_left)), type(_type), right(std::move(_right)) { }
     
     [[nodiscard]] BinaryExprType getType() const { return type; }
     [[nodiscard]] Expr& getLeftChild() { return *left; }

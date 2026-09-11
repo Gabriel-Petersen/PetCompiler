@@ -20,7 +20,7 @@ export struct TypeInfo
 {
     TypeKind kind;
 
-    int getSizeInBytes() {
+    int getSizeInBytes() const {
         switch (kind)
         {
         case TypeKind::VOID:
@@ -51,12 +51,12 @@ export struct TypeInfo
     [[nodiscard]] bool isBool()    const { return kind == TypeKind::BOOL; }
     [[nodiscard]] bool isVoid()    const { return kind == TypeKind::VOID; }
     
-    bool isUnsigned() {
+    bool isUnsigned() const {
         return kind == TypeKind::CHAR || kind == TypeKind::USMALL || kind == TypeKind::UINT || kind == TypeKind::ULONG;
     }
 
     // MAY REQUIRE CAST TO UNSIGNED LONG LONG
-    std::pair<long long, long long> getBounds() 
+    std::pair<long long, long long> getBounds() const
     {
         if (kind == TypeKind::BOOL) return std::make_pair<long long, long long>(0, 1);
         if (kind == TypeKind::VOID) return std::make_pair<long long, long long>(0, 0);

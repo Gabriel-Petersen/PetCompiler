@@ -1,0 +1,59 @@
+int value = 20;
+
+print(value);
+
+value = 10;
+print(value);
+
+value += 5;
+print(value);
+
+value -= 3;
+print(value);
+
+value *= 4;
+print(value);
+
+value /= 6;
+print(value);
+
+value %= 5;
+print(value);
+
+int other = 7;
+
+value = other;
+print(value);
+
+value += other * 2;
+print(value);
+
+value -= (other + 3);
+print(value);
+
+value *= 2 + 1;
+print(value);
+
+value /= 3;
+print(value);
+
+value %= 4;
+print(value);
+
+double decimal = 10.5;
+
+print(decimal);
+
+decimal += 2.5;
+print(decimal);
+
+decimal -= 3.0;
+print(decimal);
+
+decimal *= 2.0;
+print(decimal);
+
+decimal /= 4.0;
+print(decimal);
+
+return value;

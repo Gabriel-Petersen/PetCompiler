@@ -31,7 +31,7 @@ public:
     std::optional<TypeInfo> lookup(const std::string& name)
     {
         auto found = symbols.find(name);
-        if (found != symbols.end()) return *found;
+        if (found != symbols.end()) return found->second;
         
         return parent == nullptr ? std::nullopt : parent->lookup(name);
     }

@@ -3,6 +3,7 @@ module;
 #include <memory>
 #include <string>
 #include <utility>
+#include <unordered_map>
 
 export module parser.statements;
 
@@ -13,6 +14,7 @@ import parser.types;
 import error;
 import ast.node;
 import ast.statements;
+import ast.expressions;
 import ast.debug_nodes;
 
 template<typename T>
@@ -22,6 +24,7 @@ export class StatementParser {
 private:
     TokenCursor& cursor;
     ExpressionParser& exprParser;
+    std::unordered_map<TokenType, AssignmentOperation> assignmentTokens;
 
     [[nodiscard]] bool consumeSemicolon()
     {
@@ -64,13 +67,19 @@ private:
 
     [[nodiscard]] ptr<AssignmentStmt> parseAssignment()
     {
-        std::string name = cursor.advance().src;
+        const Token& identifierToken = cursor.advance();
+        auto target = std::make_unique<VarExpr>(identifierToken.src);
 
-        if (!cursor.consume(TokenType::EQUAL, "Expected '=' after assignment target")) {
+        const auto operationIt = assignmentTokens.find(cursor.peek().type);
+        if (operationIt == assignmentTokens.end())
+        {
+            error::report("Internal parser error: expected assignment operation");
             cursor.synchronize();
             return nullptr;
         }
-        
+
+        cursor.advance();
+
         auto val = exprParser.parseExpr();
         if (val == nullptr) {
             cursor.synchronize();
@@ -82,7 +91,7 @@ private:
             return nullptr;
         }
 
-        return std::make_unique<AssignmentStmt>(std::move(name), std::move(val));
+        return std::make_unique<AssignmentStmt>(std::move(target), operationIt->second, std::move(val));
     }
 
     [[nodiscard]] ptr<IfStmt> parseIf()
@@ -223,14 +232,21 @@ private:
 
 public:
     explicit StatementParser(TokenCursor& cursor, ExpressionParser& exprParser) :
-        cursor(cursor), exprParser(exprParser) { }
+        cursor(cursor), exprParser(exprParser) { 
+            assignmentTokens[TokenType::EQUAL] = AssignmentOperation::ASSIGN;
+            assignmentTokens[TokenType::PLUS_EQ] = AssignmentOperation::ADD_ASSIGN;
+            assignmentTokens[TokenType::MINUS_EQ] = AssignmentOperation::SUB_ASSIGN;
+            assignmentTokens[TokenType::STAR_EQ] = AssignmentOperation::MUL_ASSIGN;
+            assignmentTokens[TokenType::SLASH_EQ] = AssignmentOperation::DIV_ASSIGN;
+            assignmentTokens[TokenType::MOD_EQ] = AssignmentOperation::MOD_ASSIGN;
+        }
 
     [[nodiscard]] ptr<Stmt> parseStmt() 
     {
         const Token& tk = cursor.peek();
         if (type_parser::isTypeToken(tk.type)) 
             return parseVariableDeclaration();
-        if (tk.type == TokenType::IDENTIFYER &&  cursor.lookAhead().type == TokenType::EQUAL)
+        if (tk.type == TokenType::IDENTIFYER && assignmentTokens.find(cursor.lookAhead().type) != assignmentTokens.end())
             return parseAssignment();
         if (tk.type == TokenType::L_BRACES)
             return parseBlock();

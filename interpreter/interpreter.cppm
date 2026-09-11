@@ -45,6 +45,126 @@ export class Interpreter final : public Visitor
 
         return EvaluationType::INT;
     }
+
+    [[nodiscard]]
+    static Evaluation resolveBinary(const Evaluation& left, BinaryExprType operation, const Evaluation& right)
+    {
+        const bool leftIsBool = left.type == EvaluationType::BOOL;
+        const bool rightIsBool = right.type == EvaluationType::BOOL;
+
+        if (leftIsBool != rightIsBool)
+        {
+            std::cout << "[RUNTIME-ERROR]: Operacao entre number e bool.\n";
+            return Evaluation();
+        }
+
+        if (leftIsBool)
+        {
+            switch (operation)
+            {
+            case BinaryExprType::EQUALS:
+                return Evaluation(left.data.bVal == right.data.bVal);
+
+            case BinaryExprType::UNEQUALS:
+                return Evaluation(left.data.bVal != right.data.bVal);
+
+            default:
+                std::cout << "[RUNTIME-ERROR]: Operacao nao suportada " << static_cast<int>(operation) << "entre booleanos.\n";
+                return Evaluation();
+            }
+        }
+
+        const EvaluationType resultType = decideType(left, right, operation);
+
+        switch (operation)
+        {
+        case BinaryExprType::ADD:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() + right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() + right.getNumber<long long>());
+
+        case BinaryExprType::SUB:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() - right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() - right.getNumber<long long>());
+
+        case BinaryExprType::MUL:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() * right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() * right.getNumber<long long>());
+            
+        case BinaryExprType::DIV:
+        {
+            if (resultType == EvaluationType::FLOAT)
+            {
+                const double divisor = right.getNumber<double>();
+
+                if (divisor == 0.0)
+                {
+                    std::cout << "[RUNTIME-ERROR]: Divisao por zero.\n";
+                    return Evaluation();
+                }
+
+                return Evaluation(left.getNumber<double>() / divisor);
+            }
+            
+            const long long divisor = right.getNumber<long long>();
+
+            if (divisor == 0)
+            {
+                std::cout << "[RUNTIME-ERROR]: Divisao por zero.\n";
+                return Evaluation();
+            }
+
+            return Evaluation(left.getNumber<long long>() / divisor);
+        }
+
+        case BinaryExprType::MOD:
+        {
+            const long long divisor = right.getNumber<long long>();
+
+            if (divisor == 0)
+            {
+                std::cout << "[RUNTIME-ERROR]: Resto por zero.\n";
+                return Evaluation();
+            }
+
+            return Evaluation(left.getNumber<long long>() % divisor);
+        }
+
+        case BinaryExprType::EQUALS:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() == right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() == right.getNumber<long long>());
+
+        case BinaryExprType::UNEQUALS:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() != right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() != right.getNumber<long long>());
+
+        case BinaryExprType::GREATER:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() > right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() > right.getNumber<long long>());
+
+        case BinaryExprType::LESSER:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() < right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() < right.getNumber<long long>());
+
+        case BinaryExprType::GREATER_EQ:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() >= right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() >= right.getNumber<long long>());
+
+        case BinaryExprType::LESSER_EQ:
+            if (resultType == EvaluationType::FLOAT)
+                return Evaluation(left.getNumber<double>() <= right.getNumber<double>());
+            return Evaluation(left.getNumber<long long>() <= right.getNumber<long long>());
+        }
+
+        return Evaluation();
+    }
 public:
     void execute(Stmt& statement) { Dispatcher::accept(statement, *this); }
 
@@ -79,14 +199,7 @@ public:
         switch (node.getType())
         {
         case UnaryExprType::NOT:
-            if (child.type == EvaluationType::BOOL)
-            {
-                lastEvaluation = Evaluation(!child.data.bVal);
-                return;
-            }
-
-            std::cout << "[RUNTIME-ERROR]: Operacao ! requer booleano.\n";
-            lastEvaluation = Evaluation();
+            lastEvaluation = Evaluation(!child.isTrue());
             return;
 
         case UnaryExprType::MINUS:
@@ -114,156 +227,8 @@ public:
         Evaluation right = evaluate(node.getRightChild());
 
         const BinaryExprType operation = node.getType();
-        const bool leftIsBool = left.type == EvaluationType::BOOL;
-        const bool rightIsBool = right.type == EvaluationType::BOOL;
 
-        if (leftIsBool != rightIsBool)
-        {
-            std::cout << "[RUNTIME-ERROR]: Operacao entre number e bool.\n";
-            lastEvaluation = Evaluation{};
-            return;
-        }
-
-        if (leftIsBool)
-        {
-            switch (operation)
-            {
-            case BinaryExprType::EQUALS:
-                lastEvaluation = Evaluation(left.data.bVal == right.data.bVal);
-                return;
-
-            case BinaryExprType::UNEQUALS:
-                lastEvaluation = Evaluation(left.data.bVal != right.data.bVal);
-                return;
-
-            default:
-                std::cout << "[RUNTIME-ERROR]: Operacao nao suportada " << static_cast<int>(operation) << "entre booleanos.\n";
-                lastEvaluation = Evaluation();
-                return;
-            }
-        }
-
-        const EvaluationType resultType = decideType(left, right, operation);
-
-        switch (operation)
-        {
-        case BinaryExprType::ADD:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() + right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() + right.getNumber<long long>());
-            
-            return;
-
-        case BinaryExprType::SUB:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() - right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() - right.getNumber<long long>());
-            
-            return;
-
-        case BinaryExprType::MUL:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() * right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() * right.getNumber<long long>());
-            
-            return;
-
-        case BinaryExprType::DIV:
-            if (resultType == EvaluationType::FLOAT)
-            {
-                const double divisor = right.getNumber<double>();
-
-                if (divisor == 0.0)
-                {
-                    std::cout << "[RUNTIME-ERROR]: Divisao por zero.\n";
-                    lastEvaluation = Evaluation{};
-                    return;
-                }
-
-                lastEvaluation = Evaluation(left.getNumber<double>() / divisor);
-            }
-            else
-            {
-                const long long divisor = right.getNumber<long long>();
-
-                if (divisor == 0)
-                {
-                    std::cout << "[RUNTIME-ERROR]: Divisao por zero.\n";
-                    lastEvaluation = Evaluation{};
-                    return;
-                }
-
-                lastEvaluation = Evaluation(left.getNumber<long long>() / divisor);
-            }
-
-            return;
-
-        case BinaryExprType::MOD:
-        {
-            const long long divisor = right.getNumber<long long>();
-
-            if (divisor == 0)
-            {
-                std::cout << "[RUNTIME-ERROR]: Resto por zero.\n";
-                lastEvaluation = Evaluation{};
-                return;
-            }
-
-            lastEvaluation = Evaluation(left.getNumber<long long>() % divisor);
-            return;
-        }
-
-        case BinaryExprType::EQUALS:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() == right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() == right.getNumber<long long>());
-
-            return;
-
-        case BinaryExprType::UNEQUALS:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() != right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() != right.getNumber<long long>());
-
-            return;
-
-        case BinaryExprType::GREATER:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() > right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() > right.getNumber<long long>());
-
-            return;
-
-        case BinaryExprType::LESSER:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() < right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() < right.getNumber<long long>());
-
-            return;
-
-        case BinaryExprType::GREATER_EQ:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() >= right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() >= right.getNumber<long long>());
-
-            return;
-
-        case BinaryExprType::LESSER_EQ:
-            if (resultType == EvaluationType::FLOAT)
-                lastEvaluation = Evaluation(left.getNumber<double>() <= right.getNumber<double>());
-            else
-                lastEvaluation = Evaluation(left.getNumber<long long>() <= right.getNumber<long long>());
-            
-            return;
-        }
+        lastEvaluation = resolveBinary(left, operation, right);
     }
 
     void visit(ExprStmt& node) override { 
@@ -313,8 +278,12 @@ public:
             execute(*elseBlock);
     }
 
-    void visit(ReturnStmt& node) override {
-        throw ReturnSignal{evaluate(node.getExpr())};
+    void visit(ReturnStmt& node) override 
+    {
+        if (!node.isNull())
+            throw ReturnSignal{evaluate(node.getExpr())};
+        else
+            throw ReturnSignal{Evaluation()};
     }
 
     void visit(VarDeclStmt& node) override
@@ -327,7 +296,47 @@ public:
         runtime::define(node.identifier, node.type, std::move(value));
     }
 
-    void visit(AssignmentStmt& node) override {
-        runtime::assign(node.identifier, evaluate(node.getValue()));
+    void visit(AssignmentStmt& node) override 
+    {
+        const auto& target = node.getTarget();
+        if (target.nodeType != AstNodeType::Var) {
+            runtime::error("Interpreter currently supports assignments only to variables");
+            return;
+        }
+
+        const auto& variable = static_cast<const VarExpr&>(target);
+        Evaluation right = evaluate(node.getRValue());
+
+        if (node.operation == AssignmentOperation::ASSIGN)
+        {
+            runtime::assign(variable.getVarName(), right);
+            return;
+        }
+
+        Evaluation left = runtime::get(variable.getVarName());
+        Evaluation result;
+
+        switch(node.operation) {
+            case AssignmentOperation::ASSIGN: return;
+            case AssignmentOperation::ADD_ASSIGN:
+                result = resolveBinary(left, BinaryExprType::ADD, right);
+                break;
+            case AssignmentOperation::SUB_ASSIGN:
+                result = resolveBinary(left, BinaryExprType::SUB, right);
+                break;
+            case AssignmentOperation::MUL_ASSIGN:
+                result = resolveBinary(left, BinaryExprType::MUL, right);
+                break;
+            case AssignmentOperation::DIV_ASSIGN:
+                result = resolveBinary(left, BinaryExprType::DIV, right);
+                break;
+            case AssignmentOperation::MOD_ASSIGN:
+                result = resolveBinary(left, BinaryExprType::MOD, right);
+                break;
+            default:
+                runtime::error("Assignment operation could not be interpreted");
+                return;
+        }
+        runtime::assign(variable.getVarName(), result);
     }
 };

@@ -12,6 +12,10 @@ export enum class AstNodeType {
     Print
 };
 
+export enum class AccessMode {
+    UNRESOLVED, READONLY, READWRITE
+};
+
 export class Node
 {
 public:
@@ -25,7 +29,8 @@ export class Expr : public Node
 {
 public:
     TypeInfo computedType;
-    explicit Expr(AstNodeType type) : Node(type) { }
+    AccessMode accessMode;
+    explicit Expr(AstNodeType type, AccessMode mode) : Node(type), accessMode(mode) { }
 };
 
 export class Stmt : public Node
