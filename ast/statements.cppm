@@ -64,7 +64,7 @@ public:
     const std::string identifier;
     const TypeInfo type;
 
-    explicit VarDeclStmt(std::string _ident, const TypeInfo _type, ptr<Expr> init = nullptr) :
+    explicit VarDeclStmt(std::string _ident, TypeInfo _type, ptr<Expr> init = nullptr) :
         Stmt(AstNodeType::VarDecl), initializer(std::move(init)), identifier(std::move(_ident)), type(_type) { }
     
     [[nodiscard]] const Expr* getInitializer() const { return initializer.get(); }

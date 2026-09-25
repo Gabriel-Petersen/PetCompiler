@@ -13,22 +13,18 @@ export class SymbolTable
     std::unordered_map<std::string, TypeInfo> symbols;
 
 public:
-    SymbolTable(std::shared_ptr<SymbolTable> parent) : parent(std::move(parent)) { }
+    explicit SymbolTable(std::shared_ptr<SymbolTable> parent) : parent(std::move(parent)) { }
     SymbolTable() : parent(nullptr) { }
 
     bool define(const std::string& name, TypeInfo type)
     {
-        bool sucess = symbols.count(name) == 0;
-
-        if (!sucess)
+        const auto [it, inserted] = symbols.emplace(name, type);
+        if (!inserted)
             error::report("Variable of name \'" + name + "\' already defined in this scope");
-        else
-            symbols[name] = type;
-
-        return sucess;
+        return inserted;
     }
 
-    std::optional<TypeInfo> lookup(const std::string& name)
+    std::optional<TypeInfo> lookup(const std::string& name) const
     {
         auto found = symbols.find(name);
         if (found != symbols.end()) return found->second;

@@ -10,49 +10,60 @@ import parser;
 import parser.evaluation;
 import ast;
 import interpreter;
+import types.registry;
+
+namespace {
+    int resolve_path(int argc, char* argv[], bool& debugTokens, std::string& path)
+    {
+        debugTokens = false;
+
+        for (int i = 1; i < argc; i++) 
+        {
+            const std::string_view argument{argv[i]};
+
+            if (argument == "--debug-tokens") {
+                debugTokens = true;
+                continue;
+            }
+
+            if (!path.empty())
+            {
+                std::cerr << "Erro: apenas um arquivo de entrada eh suportado por enquanto.\n";
+                std::cerr << "Uso: " << argv[0] << " [--debug-tokens] [arquivo.pet]\n";
+                return 1;
+            }
+
+            path = argument;
+        }
+
+        if (path.empty())
+        {
+            path = "test/test_modern.pet";
+            std::cout << "Nenhum arquivo de entrada informado.\nUsando arquivo de teste: " << path << '\n';
+
+            if (argc == 1)
+            {
+                char answer;
+
+                std::cout << "[DEBUG] Subir uma pasta? [S/n] ";
+                std::cin >> answer;
+
+                if (std::toupper(static_cast<unsigned char>(answer)) == 'S') 
+                    path = "../" + path;
+            }
+        }
+
+        return 0;
+    }
+}
 
 int main(int argc, char* argv[])
 {
     std::string path;
-    bool debugTokens = false;
-
-    for (int i = 1; i < argc; i++) 
-    {
-        const std::string_view argument{argv[i]};
-
-        if (argument == "--debug-tokens") {
-            debugTokens = true;
-            continue;
-        }
-
-        if (!path.empty())
-        {
-            std::cerr << "Erro: apenas um arquivo de entrada eh suportado por enquanto.\n";
-            std::cerr << "Uso: " << argv[0] << " [--debug-tokens] [arquivo.pet]\n";
-            return 1;
-        }
-
-        path = argument;
-    }
-
-    if (path.empty())
-    {
-        path = "test/test_modern.pet";
-        std::cout << "Nenhum arquivo de entrada informado.\nUsando arquivo de teste: " << path << '\n';
-
-        if (argc == 1)
-        {
-            char answer;
-
-            std::cout << "[DEBUG] Subir uma pasta? [S/n] ";
-            std::cin >> answer;
-
-            if (std::toupper(static_cast<unsigned char>(answer)) == 'S') 
-                path = "../" + path;
-        }
-    }
-
-    
+    bool debugTokens;
+    int rc = resolve_path(argc, argv, debugTokens, path);
+    if (rc) return rc;
+        
     std::cout << "Abrindo: " << path << '\n';
 
     Lexer lexer(path);
@@ -70,7 +81,8 @@ int main(int argc, char* argv[])
         std::cout << '\n';
     }
 
-    Parser parser(lexer);
+    TypeRegistry registry;
+    Parser parser(lexer, registry);
 
     std::unique_ptr<AstTree> tree = parser.takeAst();
 

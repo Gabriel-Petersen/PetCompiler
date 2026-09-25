@@ -16,6 +16,7 @@ import ast.node;
 import ast.statements;
 import ast.expressions;
 import ast.debug_nodes;
+import types.registry;
 
 template<typename T>
 using ptr = std::unique_ptr<T>;
@@ -23,6 +24,7 @@ using ptr = std::unique_ptr<T>;
 export class StatementParser {
 private:
     TokenCursor& cursor;
+    TypeRegistry& registry;
     ExpressionParser& exprParser;
     std::unordered_map<TokenType, AssignmentOperation> assignmentTokens;
 
@@ -36,7 +38,7 @@ private:
     [[nodiscard]] ptr<VarDeclStmt> parseVariableDeclaration()
     {
         const Token& typeToken = cursor.advance();
-        auto typeInfo = type_parser::parse(typeToken);
+        auto typeInfo = type_parser::parse(typeToken, registry);
 
         if (!cursor.check(TokenType::IDENTIFYER))
         {
@@ -231,8 +233,8 @@ private:
     }
 
 public:
-    explicit StatementParser(TokenCursor& cursor, ExpressionParser& exprParser) :
-        cursor(cursor), exprParser(exprParser) { 
+    explicit StatementParser(TokenCursor& cursor, TypeRegistry& registry, ExpressionParser& exprParser) :
+        cursor(cursor), registry(registry), exprParser(exprParser) { 
             assignmentTokens[TokenType::EQUAL] = AssignmentOperation::ASSIGN;
             assignmentTokens[TokenType::PLUS_EQ] = AssignmentOperation::ADD_ASSIGN;
             assignmentTokens[TokenType::MINUS_EQ] = AssignmentOperation::SUB_ASSIGN;
@@ -244,7 +246,7 @@ public:
     [[nodiscard]] ptr<Stmt> parseStmt() 
     {
         const Token& tk = cursor.peek();
-        if (type_parser::isTypeToken(tk.type)) 
+        if (type_parser::isPrimitiveTypeToken(tk.type)) 
             return parseVariableDeclaration();
         if (tk.type == TokenType::IDENTIFYER && assignmentTokens.find(cursor.lookAhead().type) != assignmentTokens.end())
             return parseAssignment();

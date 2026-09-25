@@ -6,11 +6,13 @@ export module parser.types;
 
 import token;
 import types.info;
+import types.structure;
+import types.registry;
 import error;
 
 export namespace type_parser
 {
-    [[nodiscard]] bool isTypeToken(TokenType type)
+    [[nodiscard]] bool isPrimitiveTypeToken(TokenType type)
     {
         switch (type)
         {
@@ -29,39 +31,39 @@ export namespace type_parser
         }
     }
 
-    [[nodiscard]] TypeInfo parse(const Token& token)
+    [[nodiscard]] TypeInfo parse(const Token& token, const TypeRegistry& registry)
     {
         switch (token.type)
         {
         case TokenType::TP_BYTE:
-            return TypeInfo{TypeKind::BYTE};
+            return registry.getPrimitiveType(PrimitiveKind::BYTE);
 
         case TokenType::TP_CHAR:
-            return TypeInfo{TypeKind::CHAR};
+            return registry.getPrimitiveType(PrimitiveKind::CHAR);
 
         case TokenType::TP_SMALL:
-            return TypeInfo{TypeKind::SMALL};
+            return registry.getPrimitiveType(PrimitiveKind::SMALL);
 
         case TokenType::TP_INT:
-            return TypeInfo{TypeKind::INT};
+            return registry.getPrimitiveType(PrimitiveKind::INT);
 
         case TokenType::TP_LONG:
-            return TypeInfo{TypeKind::LONG};
+            return registry.getPrimitiveType(PrimitiveKind::LONG);
 
         case TokenType::TP_FLOAT:
-            return TypeInfo{TypeKind::FLOAT};
+            return registry.getPrimitiveType(PrimitiveKind::FLOAT);
 
         case TokenType::TP_DOUBLE:
-            return TypeInfo{TypeKind::DOUBLE};
+            return registry.getPrimitiveType(PrimitiveKind::DOUBLE);
 
         case TokenType::TP_VOID:
-            return TypeInfo{TypeKind::VOID};
+            return registry.getPrimitiveType(PrimitiveKind::VOID);
 
         default:
             std::string err = "Unexpected type token on declaration: " + token.src;
             error::report(err);
 
-            return TypeInfo{TypeKind::INT};
+            return TypeInfo::errorType();
         }
     }
 }

@@ -10,6 +10,7 @@ import lexer;
 import parser.token_cursor;
 import parser.expressions;
 import parser.statements;
+import types.registry;
 import ast;
 
 export class Parser {
@@ -17,13 +18,14 @@ private:
     bool ownsAst = true;
     bool isBuilt = false;
     TokenCursor cursor;
+    TypeRegistry& registry;
     ExpressionParser exprParser;
     StatementParser stmtParser;
     std::unique_ptr<AstTree> ast;
 
 public:
-    explicit Parser(Lexer& lx) : 
-        cursor(TokenCursor(lx.getAllToken())), exprParser(cursor), stmtParser(cursor, exprParser), ast(std::make_unique<AstTree>()) { }
+    explicit Parser(Lexer& lx, TypeRegistry& _registry) : 
+        cursor(TokenCursor(lx.getAllToken())), registry(_registry), exprParser(cursor), stmtParser(cursor, _registry, exprParser), ast(std::make_unique<AstTree>()) { }
 
     void build()
     {

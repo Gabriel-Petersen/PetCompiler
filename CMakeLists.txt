@@ -23,7 +23,10 @@ target_sources(pet_compiler
             lexer/lexer.cppm
 
             # Type System
+            type_system/namespace.cppm
+            type_system/type_structure.cppm
             type_system/type_info.cppm
+            type_system/type_registry.cppm
             type_system/casts.cppm
             type_system/symbol_table.cppm
 

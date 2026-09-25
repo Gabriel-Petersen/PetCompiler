@@ -1,6 +1,8 @@
 export module types.casts;
 
 import types.info;
+import types.structure;
+import types.registry;
 
 export enum class CastSeverity {
         IDENTITY,
@@ -11,9 +13,17 @@ export enum class CastSeverity {
 
 export namespace casts
 {
-    inline CastSeverity getCastSeverity(const TypeInfo& from, const TypeInfo& to)
+    // por hora, apenas compara tipos primitivos. No futuro, faz-se lookup da arvore de hierarquia das classes
+    inline CastSeverity getCastSeverity(const TypeInfo& fromType, const TypeInfo& toType, const TypeRegistry& registry)
     {
-        if (from.kind == to.kind) return CastSeverity::IDENTITY;
+        if (fromType == toType) return CastSeverity::IDENTITY;
+
+        if (!fromType.isPrimitive() || !toType.isPrimitive()) {
+            return CastSeverity::IMPOSSIBLE;
+        }
+
+        auto& from = static_cast<const PrimitiveInfo&>(registry.getType(fromType.id));
+        auto& to = static_cast<const PrimitiveInfo&>(registry.getType(toType.id));
         
         if (from.isVoid() || to.isVoid()) {
             if (to.isBool()) return CastSeverity::DEMOTION;
@@ -36,16 +46,29 @@ export namespace casts
         return CastSeverity::IDENTITY;
     }
 
-    inline TypeInfo decideStaticType(TypeInfo l, TypeInfo r)
+    inline TypeInfo decideStaticType(const TypeInfo& left, const TypeInfo& right, const TypeRegistry& registry)
     {
-        if (l.isFloat() || r.isFloat()) 
+        if (!left.isPrimitive() || !right.isPrimitive())
         {
-            if (l.kind == TypeKind::DOUBLE || r.kind == TypeKind::DOUBLE) 
-                return { TypeKind::DOUBLE };
-            return { TypeKind::FLOAT };
+            if (left == right) return left;
+            return TypeInfo::errorType();
         }
 
-        if (l.getSizeInBytes() >= r.getSizeInBytes()) return l;
-        return r;
+        auto& l = static_cast<const PrimitiveInfo&>(registry.getType(left.id));
+        auto& r = static_cast<const PrimitiveInfo&>(registry.getType(right.id));
+
+        if (l.isVoid() || r.isVoid()) {
+            return TypeInfo::errorType();
+        }
+
+        if (l.isFloat() || r.isFloat()) 
+        {
+            if (l.kind == PrimitiveKind::DOUBLE || r.kind == PrimitiveKind::DOUBLE) 
+                return registry.getPrimitiveType(PrimitiveKind::DOUBLE);
+            return registry.getPrimitiveType(PrimitiveKind::FLOAT);
+        }
+
+        if (l.getSizeInBytes() >= r.getSizeInBytes()) return registry.getPrimitiveType(l.kind);
+        return registry.getPrimitiveType(r.kind);
     }
 }
