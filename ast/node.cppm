@@ -1,19 +1,17 @@
 module;
 
-#include "stl.h"
+#include <memory>
+#include <utility>
 
 export module ast.node;
 
+import types.structure;
 import types.info;
 
 export enum class AstNodeType {
     Expr, Block, If, Return, VarDecl, Assignment,
     Literal, Unary, Var, Binary,
     Print
-};
-
-export enum class AccessMode {
-    UNRESOLVED, READONLY, READWRITE
 };
 
 export class Node

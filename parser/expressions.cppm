@@ -96,8 +96,9 @@ private:
         auto left = term();
         TokenType type = cursor.peek().type;
 
-        if (type == TokenType::GRATER_THEN || type == TokenType::GREATER_OR_EQUALS || 
-            type == TokenType::LESSER_THEN || type == TokenType::LESSER_OR_EQUALS) 
+        bool isGreater = type == TokenType::GRATER_THEN || type == TokenType::GREATER_OR_EQUALS;
+        bool isLesser = type == TokenType::LESSER_THEN || type == TokenType::LESSER_OR_EQUALS;
+        if (isGreater || isLesser) 
         {
             auto tk = cursor.advance(); 
             

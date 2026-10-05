@@ -25,7 +25,8 @@ private:
 
 public:
     explicit Parser(Lexer& lx, TypeRegistry& _registry) : 
-        cursor(TokenCursor(lx.getAllToken())), registry(_registry), exprParser(cursor), stmtParser(cursor, _registry, exprParser), ast(std::make_unique<AstTree>()) { }
+        cursor(TokenCursor(lx.getAllToken())), registry(_registry), exprParser(cursor), 
+        stmtParser(cursor, _registry, exprParser), ast(std::make_unique<AstTree>()) { }
 
     void build()
     {

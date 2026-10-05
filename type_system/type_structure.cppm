@@ -10,6 +10,10 @@ export namespace ReservedIDs {
     inline constexpr TypeID ERROR = 1;
 };
 
+export enum class AccessMode {
+    UNRESOLVED, READONLY, READWRITE
+};
+
 export enum class PrimitiveKind {
     VOID,           // 0 bits
     BYTE, CHAR,     // 8bits

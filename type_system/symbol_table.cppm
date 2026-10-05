@@ -1,6 +1,10 @@
 module;
 
-#include "stl.h"
+#include <memory>
+#include <string>
+#include <optional>
+#include <unordered_map>
+#include <utility>
 
 export module types.symbol_table;
 
@@ -10,13 +14,17 @@ import error;
 export class SymbolTable
 {
     std::shared_ptr<SymbolTable> parent;
-    std::unordered_map<std::string, TypeInfo> symbols;
+    std::unordered_map<std::string, SymbolInfo> symbols;
 
 public:
     explicit SymbolTable(std::shared_ptr<SymbolTable> parent) : parent(std::move(parent)) { }
     SymbolTable() : parent(nullptr) { }
 
-    bool define(const std::string& name, TypeInfo type)
+    [[nodiscard]] std::shared_ptr<SymbolTable> getParent() const { 
+        return parent;
+    }
+
+    bool define(const std::string& name, SymbolInfo type)
     {
         const auto [it, inserted] = symbols.emplace(name, type);
         if (!inserted)
@@ -24,7 +32,7 @@ public:
         return inserted;
     }
 
-    std::optional<TypeInfo> lookup(const std::string& name) const
+    std::optional<SymbolInfo> lookup(const std::string& name) const
     {
         auto found = symbols.find(name);
         if (found != symbols.end()) return found->second;

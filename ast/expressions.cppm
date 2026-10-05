@@ -6,6 +6,7 @@ export module ast.expressions;
 
 import ast.node;
 import types.info;
+import types.structure;
 import parser.evaluation;
 
 template<typename T>

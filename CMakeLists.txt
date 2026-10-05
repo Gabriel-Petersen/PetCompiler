@@ -23,9 +23,14 @@ target_sources(pet_compiler
             lexer/lexer.cppm
 
             # Type System
+            ## Basic
             type_system/namespace.cppm
             type_system/type_structure.cppm
             type_system/type_info.cppm
+            ## DataTypes
+            type_system/type_data/type_data.cppm
+            type_system/type_data/primitive_info.cppm
+            ## Management
             type_system/type_registry.cppm
             type_system/casts.cppm
             type_system/symbol_table.cppm
@@ -47,6 +52,9 @@ target_sources(pet_compiler
             parser/expressions.cppm
             parser/statements.cppm
             parser/parser.cppm
+
+            # Semantic Analyzer
+            semantic_analyzer/scope_manager.cppm
             
             # Interpreter
             interpreter/runtime.cppm

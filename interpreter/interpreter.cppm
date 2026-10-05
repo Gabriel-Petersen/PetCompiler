@@ -52,8 +52,7 @@ export class Interpreter final : public Visitor
         const bool leftIsBool = left.type == EvaluationType::BOOL;
         const bool rightIsBool = right.type == EvaluationType::BOOL;
 
-        if (leftIsBool != rightIsBool)
-        {
+        if (leftIsBool != rightIsBool) {
             std::cout << "[RUNTIME-ERROR]: Operacao entre number e bool.\n";
             return Evaluation();
         }
@@ -99,8 +98,7 @@ export class Interpreter final : public Visitor
             {
                 const double divisor = right.getNumber<double>();
 
-                if (divisor == 0.0)
-                {
+                if (divisor == 0.0) {
                     std::cout << "[RUNTIME-ERROR]: Divisao por zero.\n";
                     return Evaluation();
                 }
@@ -110,8 +108,7 @@ export class Interpreter final : public Visitor
             
             const long long divisor = right.getNumber<long long>();
 
-            if (divisor == 0)
-            {
+            if (divisor == 0) {
                 std::cout << "[RUNTIME-ERROR]: Divisao por zero.\n";
                 return Evaluation();
             }
@@ -123,8 +120,7 @@ export class Interpreter final : public Visitor
         {
             const long long divisor = right.getNumber<long long>();
 
-            if (divisor == 0)
-            {
+            if (divisor == 0) {
                 std::cout << "[RUNTIME-ERROR]: Resto por zero.\n";
                 return Evaluation();
             }
@@ -168,8 +164,7 @@ export class Interpreter final : public Visitor
 public:
     void execute(Stmt& statement) { Dispatcher::accept(statement, *this); }
 
-    [[nodiscard]] Evaluation evaluate(Expr& expression)
-    {
+    [[nodiscard]] Evaluation evaluate(Expr& expression) {
         Dispatcher::accept(expression, *this);
         return lastEvaluation;
     }
@@ -203,14 +198,12 @@ public:
             return;
 
         case UnaryExprType::MINUS:
-            if (child.type == EvaluationType::FLOAT)
-            {
+            if (child.type == EvaluationType::FLOAT) {
                 lastEvaluation = Evaluation(-child.data.dVal);
                 return;
             }
 
-            if (child.type == EvaluationType::INT)
-            {
+            if (child.type == EvaluationType::INT) {
                 lastEvaluation = Evaluation(-child.data.iVal);
                 return;
             }
@@ -256,8 +249,7 @@ public:
     {
         RuntimeScope scope;
 
-        for (auto& statement : node.getStatements())
-        {
+        for (auto& statement : node.getStatements()) {
             if (statement)
                 execute(*statement);
         }
@@ -268,8 +260,7 @@ public:
         const Evaluation condition =
             evaluate(node.getCondition());
 
-        if (condition.isTrue())
-        {
+        if (condition.isTrue()) {
             execute(node.getThenBlock());
             return;
         }
@@ -307,8 +298,7 @@ public:
         const auto& variable = static_cast<const VarExpr&>(target);
         Evaluation right = evaluate(node.getRValue());
 
-        if (node.operation == AssignmentOperation::ASSIGN)
-        {
+        if (node.operation == AssignmentOperation::ASSIGN) {
             runtime::assign(variable.getVarName(), right);
             return;
         }

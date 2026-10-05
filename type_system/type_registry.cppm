@@ -11,7 +11,9 @@ module;
 export module types.registry;
 
 import types.info;
+import types.data;
 import types.structure;
+import types.data.primitive;
 
 namespace {
     inline constexpr TypeID FIRST_TYPE_ID = ReservedIDs::ERROR + 1;

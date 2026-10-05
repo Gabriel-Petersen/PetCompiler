@@ -3,12 +3,13 @@ export module types.casts;
 import types.info;
 import types.structure;
 import types.registry;
+import types.data.primitive;
 
 export enum class CastSeverity {
-        IDENTITY,
-        PROMOTION,
-        DEMOTION,
-        IMPOSSIBLE
+    IDENTITY,
+    PROMOTION,
+    DEMOTION,
+    IMPOSSIBLE
 };
 
 export namespace casts
